@@ -120,15 +120,15 @@ The model processes this information to generate a personalized risk assessment 
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/SharkTien">
+      <a href="https://github.com/nguyentran67">
         <img src="src/assets/Tran.jpg" width="100px;" alt="Tran's photo" style="border-radius:50%"/><br />
-        <b>Tran</b>
+        <b>Nguyễn Tấn Trần</b>
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/SharkTien">
-        <img src="src/assets/unknown.png" width="100px;" alt="Team member" style="border-radius:50%"/><br />
-        <b>Team Member</b>
+      <a href="https://github.com/mnthien2210">
+        <img src="src/assets/unknown.png" width="100px;" alt="Thien's photo" style="border-radius:50%"/><br />
+        <b>Mai Ngọc Thiện</b>
       </a>
     </td>
   </tr>
@@ -142,5 +142,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
   <p>Made with ❤️ by CS114.P23 Team</p>
-  <p>HCMUS - Vietnam National University</p>
+  <p>UIT - Vietnam National University</p>
 </div>
