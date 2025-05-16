@@ -47,13 +47,8 @@ Check out our live demo at: [Stroke Prediction App](https://sharktien.github.io/
 
 ### Backend
 - **Python** - For machine learning models and data processing
-- **Scikit-learn** - Machine learning algorithms
-- **Flask** - API service for model predictions
+- **FastAPI** - A framework, RESTful API service
 
-### DevOps
-- **Vite** - Next generation frontend tooling
-- **GitHub Actions** - CI/CD workflows
-- **GitHub Pages** - Deployment and hosting
 
 ## 💻 Installation
 
@@ -116,19 +111,25 @@ The model processes this information to generate a personalized risk assessment 
     <td align="center">
       <a href="https://github.com/SharkTien">
         <img src="src/assets/Tien.jpg" width="100px;" alt="Tien's photo" style="border-radius:50%"/><br />
-        <b>SharkTien</b>
+        <b>Huỳnh Việt Tiến</b>
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/nguyentran67">
         <img src="src/assets/Tran.jpg" width="100px;" alt="Tran's photo" style="border-radius:50%"/><br />
-        <b>Nguyễn Tấn Trần</b>
+        <b>Trịnh Trân Trân</b>
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/mnthien2210">
         <img src="src/assets/unknown.png" width="100px;" alt="Thien's photo" style="border-radius:50%"/><br />
-        <b>Mai Ngọc Thiện</b>
+        <b>Ngô Minh Trí</b>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/mnthien2210">
+        <img src="src/assets/unknown.png" width="100px;" alt="Thien's photo" style="border-radius:50%"/><br />
+        <b>Nguyễn Minh Triết</b>
       </a>
     </td>
   </tr>
