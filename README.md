@@ -74,14 +74,11 @@ npm run dev
 
 ### Backend Setup
 ```bash
-# Navigate to requirements directory
-cd src/api/models
-
 # Install Python dependencies
 pip install -r requirements.txt
 
 # Navigate to API directory
-cd ..
+cd src/api
 
 # Start the API server
 python predict.py
