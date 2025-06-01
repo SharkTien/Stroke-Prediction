@@ -1,145 +1,77 @@
-import React, { useEffect } from 'react';
-import { Card, Button } from 'antd';
-import styled, { keyframes } from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { HeartOutlined, WarningOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const pulseAnimation = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-`;
-
-const ResultContainer = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: rgba(255, 255, 255, 0.1);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 30% 98%, 0 100%);
-    animation: ${pulseAnimation} 10s infinite ease-in-out;
-  }
-`;
-
-const ResultCard = styled(Card)`
-  width: 100%;
-  max-width: 800px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-  animation: ${fadeIn} 0.8s ease-out;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, transparent, rgba(24, 144, 255, 0.1));
-    clip-path: circle(70% at 95% 5%);
-  }
-
-  .ant-card-body {
-    position: relative;
-    z-index: 1;
-  }
-`;
-
-const ResultTitle = styled.h1`
-  color: ${props => props.risk ? '#ff4d4f' : '#52c41a'};
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  animation: ${fadeIn} 1s ease-out;
-`;
-
-const ResultIcon = styled.div`
-  font-size: 4rem;
-  text-align: center;
-  margin-bottom: 2rem;
-  color: ${props => props.risk ? '#ff4d4f' : '#52c41a'};
-  animation: ${pulseAnimation} 2s infinite ease-in-out;
-`;
-
-const AdviceSection = styled.div`
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: ${props => props.risk ? 'rgba(255, 77, 79, 0.1)' : 'rgba(82, 196, 26, 0.1)'};
-  border-radius: 12px;
-  animation: ${fadeIn} 1.2s ease-out;
-`;
-
-const AdviceTitle = styled.h3`
-  color: #1890ff;
-  margin-bottom: 1rem;
-`;
-
-const AdviceList = styled.ul`
-  list-style-type: none;
-  padding: 0;
-
-  li {
-    margin-bottom: 0.8rem;
-    padding-left: 1.5rem;
-    position: relative;
-
-    &::before {
-      content: '•';
-      color: #1890ff;
-      position: absolute;
-      left: 0;
-    }
-  }
-`;
-
-const BackButton = styled(Button)`
-  margin-top: 2rem;
-  
-  &:hover {
-    transform: translateX(-5px);
-  }
-`;
+import './ResultPage.css';
 
 const ResultPage = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  
-  // Kiểm tra và lấy kết quả từ location state hoặc dùng giá trị mặc định
-  // Đây là dữ liệu mẫu để trang luôn hiển thị khi không có dữ liệu thực
-  const result = location.state?.result !== undefined ? location.state.result : 0; 
-  
-  // Thông báo trong console để debug
-  useEffect(() => {
-    console.log("Location state:", location.state);
-    console.log("Result value:", result);
-  }, [location, result]);
+  const navigate = useNavigate();
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const isHighRisk = result === 1;
+  useEffect(() => {
+    const fetchResult = async () => {
+      if (!location.state?.formData) {
+        console.log('No form data found, redirecting to assessment');
+        navigate('/assessment');
+        return;
+      }
+
+      try {
+        console.log('Sending form data:', location.state.formData);
+        const response = await fetch('http://localhost:8000/api/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(location.state.formData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Failed to get prediction');
+        }
+
+        const data = await response.json();
+        console.log('Received prediction result:', data);
+        setResult(data);
+      } catch (err) {
+        console.error('Error fetching prediction:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResult();
+  }, [location.state, navigate]);
+
+  if (loading) {
+    return (
+      <div className="result-container">
+        <div className="loading">Đang phân tích...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="result-container">
+        <div className="error">Có lỗi xảy ra: {error}</div>
+        <div className="result-actions">
+          <button onClick={() => navigate('/assessment')} className="back-button">
+            Quay lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!result) {
+    return null;
+  }
+
+  const isHighRisk = result.final_prediction === 1;
 
   const adviceData = {
     highRisk: {
@@ -170,42 +102,60 @@ const ResultPage = () => {
 
   const currentAdvice = isHighRisk ? adviceData.highRisk : adviceData.lowRisk;
 
+  const getExpertNote = (expert) => {
+    if (expert.model === 'SVM') {
+      return "Chuyên gia được đánh giá cao về độ chính xác và độ tin cậy.";
+    }
+    return null;
+  };
+
   return (
-    <ResultContainer>
-      <ResultCard>
-        <ResultIcon risk={isHighRisk}>
-          {isHighRisk ? <WarningOutlined /> : <HeartOutlined />}
-        </ResultIcon>
-        <ResultTitle risk={isHighRisk}>
-          {isHighRisk 
-            ? "⚠️ Cảnh Báo: Nguy Cơ Cao" 
-            : "✅ Kết Quả Khả Quan"}
-        </ResultTitle>
-        <p style={{ textAlign: 'center', fontSize: '1.1rem', marginBottom: '2rem' }}>
-          {isHighRisk
-            ? "Kết quả sàng lọc cho thấy bạn có nguy cơ cao về đột quỵ. Vui lòng thực hiện theo các khuyến nghị dưới đây."
-            : "Các yếu tố nguy cơ đột quỵ của bạn ở mức thấp. Hãy duy trì lối sống lành mạnh với các lời khuyên sau."}
-        </p>
+    <div className="result-container">
+      <h1>Kết quả đánh giá</h1>
+      
+      <div className="expert-predictions">
+        {result.expert_predictions.map((expert, index) => (
+          <div key={index} className={`expert-card ${expert.prediction === 1 ? 'risk' : 'no-risk'} ${expert.model === 'SVM' ? 'svm-expert' : ''}`}>
+            <h3>{expert.expert}</h3>
+            <p className="model-name">Model: {expert.model}</p>
+            <p className="prediction">Kết quả: {expert.result}</p>
+            {expert.probability !== null && (
+              <p className="probability">
+                Xác suất: {(expert.probability * 100).toFixed(2)}%
+              </p>
+            )}
+            {expert.model === 'SVM' && (
+              <div className="expert-note">
+                <p className="note-icon">⭐</p>
+                <p className="note-text">{getExpertNote(expert)}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
 
-        <AdviceSection risk={isHighRisk}>
-          <AdviceTitle>{currentAdvice.title}</AdviceTitle>
-          <AdviceList>
-            {currentAdvice.points.map((point, index) => (
-              <li key={index}>{point}</li>
-            ))}
-          </AdviceList>
-        </AdviceSection>
+      <div className="final-result">
+        <h2>Kết quả cuối cùng</h2>
+        <div className={`final-card ${result.final_prediction === 1 ? 'risk' : 'no-risk'}`}>
+          <p>{result.final_result}</p>
+        </div>
+      </div>
 
-        <BackButton 
-          type="primary" 
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/')}
-          block
-        >
-          Quay Lại Trang Chủ
-        </BackButton>
-      </ResultCard>
-    </ResultContainer>
+      <div className="advice-section">
+        <h2>{currentAdvice.title}</h2>
+        <ul className="advice-list">
+          {currentAdvice.points.map((point, index) => (
+            <li key={index}>{point}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="result-actions">
+        <button onClick={() => navigate('/assessment')} className="back-button">
+          Quay lại
+        </button>
+      </div>
+    </div>
   );
 };
 

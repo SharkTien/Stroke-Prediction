@@ -433,71 +433,40 @@ const LinearRegressionForm = () => {
   ];
 
   const onFinish = async (values) => {
-    setLoading(true);
     try {
-      const formData = {
-        age: parseFloat(values.age),
-        gender: parseInt(values.gender),
-        chest_pain: parseInt(values.chest_pain),
-        high_blood: parseInt(values.high_blood_pressure),
-        irregular_h: parseInt(values.irregular_heartbeat),
-        shortness_of: parseInt(values.shortness_of_breath),
-        fatigue_we: parseInt(values.fatigue_weakness),
-        dizziness: parseInt(values.dizziness),
-        swelling_e: parseInt(values.swelling_edema),
-        neck_jaw_r: parseInt(values.neck_jaw_pain),
-        excessive_: parseInt(values.excessive_sweating),
-        persistent: parseInt(values.persistent_cough),
-        nausea_vo: parseInt(values.nausea_vomiting),
-        chest_disc: parseInt(values.chest_discomfort),
-        cold_hands: parseInt(values.cold_hands_feet),
-        snoring_sl: parseInt(values.snoring_sleep_apnea),
-        anxiety_do: parseInt(values.anxiety_doom),
-      };
+        setLoading(true);
+        // Convert form values to the format expected by the API
+        const formData = {
+            age: parseFloat(values.age),
+            gender: parseInt(values.gender),
+            chest_pain: parseInt(values.chest_pain),
+            high_blood: parseInt(values.high_blood_pressure),
+            irregular_h: parseInt(values.irregular_heartbeat),
+            shortness_of: parseInt(values.shortness_of_breath),
+            fatigue_we: parseInt(values.fatigue_weakness),
+            dizziness: parseInt(values.dizziness),
+            swelling_e: parseInt(values.swelling_edema),
+            neck_jaw_r: parseInt(values.neck_jaw_pain),
+            excessive_: parseInt(values.excessive_sweating),
+            persistent: parseInt(values.persistent_cough),
+            nausea_vo: parseInt(values.nausea_vomiting),
+            chest_disc: parseInt(values.chest_discomfort),
+            cold_hands: parseInt(values.cold_hands_feet),
+            snoring_sl: parseInt(values.snoring_sleep_apnea),
+            anxiety_do: parseInt(values.anxiety_doom)
+        };
 
-      console.log('Form data:', formData);
-
-      try {
-        // Thử kết nối với API thực
-        const response = await fetch('/api/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
+        // Navigate to result page with form data
+        navigate('/result', { 
+            state: { 
+                formData: formData 
+            }
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        message.success('Đánh giá hoàn tất');
-        navigate('/result', { state: { result: result.prediction } });
-      } catch (error) {
-        // Nếu API thất bại, sử dụng kết quả mẫu
-        console.warn('API call failed, using mock data instead', error);
-        
-        // Tạo kết quả mẫu dựa trên dữ liệu form
-        // (ví dụ: nguy cơ cao nếu có nhiều triệu chứng chính)
-        const riskFactors = [
-          formData.chest_pain, 
-          formData.high_blood, 
-          formData.irregular_h, 
-          formData.shortness_of
-        ];
-        
-        const numRiskFactors = riskFactors.filter(factor => factor === 1).length;
-        const mockResult = numRiskFactors >= 2 ? 1 : 0;
-        
-        message.success('Đánh giá hoàn tất (dữ liệu mẫu)');
-        navigate('/result', { state: { result: mockResult } });
-      }
     } catch (error) {
-      console.error('Error:', error);
-      message.error('Có lỗi xảy ra: ' + error.message);
+        message.error('Có lỗi xảy ra khi xử lý dữ liệu');
+        console.error('Error:', error);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 

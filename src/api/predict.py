@@ -6,8 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from models.LogisticRegression import LogisticRegressionCustom
 import os
+import subprocess
 from sklearn.preprocessing import StandardScaler
 import numpy as np
+from collections import Counter
 
 app = FastAPI()
 
@@ -22,23 +24,65 @@ app.add_middleware(
 
 # Get the current directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(current_dir, 'checkpoints', 'logisticregression_model.pkl')
+checkpoints_dir = os.path.join(current_dir, 'checkpoints')
 
-# Load the model and scaler
-try:
-    with open(model_path, 'rb') as f:
-        model_data = dill.load(f)
-        if isinstance(model_data, dict):
-            model = model_data['model']
-            scaler = model_data.get('scaler')
-        else:
-            model = model_data
-            scaler = None
-    print(f"Model loaded successfully from {model_path}")
-except Exception as e:
-    print(f"Error loading model from {model_path}: {str(e)}")
-    model = None
-    scaler = None
+# Ensure checkpoints directory exists
+os.makedirs(checkpoints_dir, exist_ok=True)
+
+# List of required models with their corresponding command line names
+required_models = [
+    ('svm_model.pkl', 'SVM'),
+    ('logisticregression_model.pkl', 'LogisticRegression'),
+    ('decisiontree_model.pkl', 'DecisionTree'),
+    ('randomforest_model.pkl', 'RandomForest'),
+    ('knn_model.pkl', 'KNN')
+]
+
+def check_and_train_models():
+    missing_models = []
+    for model_file, _ in required_models:
+        model_path = os.path.join(checkpoints_dir, model_file)
+        if not os.path.exists(model_path):
+            missing_models.append((model_file, _))
+    
+    if missing_models:
+        print("Some model files are missing. Training required models...")
+        # Change to the api directory
+        os.chdir(current_dir)
+        
+        # Train each missing model
+        for model_file, model_name in missing_models:
+            print(f"Training {model_name}...")
+            try:
+                subprocess.run(['python', 'train_model.py', f'--model={model_name}'], check=True)
+                print(f"Successfully trained {model_name}")
+            except subprocess.CalledProcessError as e:
+                print(f"Error training {model_name}: {str(e)}")
+                raise Exception(f"Failed to train {model_name} model")
+
+# Check and train models at startup
+check_and_train_models()
+
+# Load all models at startup
+models = {}
+for model_file, model_name in required_models:
+    model_path = os.path.join(checkpoints_dir, model_file)
+    try:
+        with open(model_path, 'rb') as f:
+            model_data = dill.load(f)
+            if isinstance(model_data, dict):
+                models[model_name] = {
+                    'model': model_data['model'],
+                    'scaler': model_data.get('scaler')
+                }
+            else:
+                models[model_name] = {
+                    'model': model_data,
+                    'scaler': None
+                }
+        print(f"Model {model_name} loaded successfully")
+    except Exception as e:
+        print(f"Error loading model {model_name}: {str(e)}")
 
 class StrokeData(BaseModel):
     age: float
@@ -62,15 +106,14 @@ class StrokeData(BaseModel):
 @app.get("/api/health")
 async def health_check():
     return {
-        "status": "healthy", 
-        "model_loaded": model is not None,
-        "scaler_loaded": scaler is not None
+        "status": "healthy",
+        "models_loaded": {name: model['model'] is not None for name, model in models.items()}
     }
 
 @app.post("/api/predict")
 async def predict(data: StrokeData):
-    if model is None:
-        raise HTTPException(status_code=500, detail="Model not loaded properly")
+    if not models:
+        raise HTTPException(status_code=500, detail="No models loaded")
         
     try:
         # Convert input data to DataFrame
@@ -94,38 +137,52 @@ async def predict(data: StrokeData):
             'anxiety_do': data.anxiety_do
         }])
 
-        # Check if model is a pipeline
-        if hasattr(model, 'steps'):
-            # For pipeline models (RandomForest, KNN)
-            prediction = model.predict(input_data)
-            probability = model.predict_proba(input_data)[0][1] if hasattr(model, 'predict_proba') else None
-        else:
-            # For non-pipeline models
-            # Scale the input data if scaler is available
-            if scaler is not None:
-                # Convert to numpy array without feature names
-                input_array = input_data.values
-                input_data_scaled = scaler.transform(input_array)
-                print("Data scaled before prediction")
-            else:
-                input_data_scaled = input_data.values
-                print("Warning: No scaler found, using raw data for prediction")
-
-            # Make prediction
-            prediction = model.predict(input_data_scaled)
+        expert_predictions = []
+        for model_name, model_data in models.items():
+            model = model_data['model']
+            scaler = model_data['scaler']
             
-            # Get prediction probability if available
-            probability = None
-            if hasattr(model, 'predict_proba'):
-                probas = model.predict_proba(input_data_scaled)
-                probability = float(probas[0]) if probas.ndim == 1 else float(probas[0][1])
-        
-        # Since we're only predicting for one sample, we can safely take the first element
-        prediction = int(prediction[0]) if isinstance(prediction, (np.ndarray, list)) else int(prediction)
+            try:
+                # Check if model is a pipeline
+                if hasattr(model, 'steps'):
+                    prediction = model.predict(input_data)
+                    probability = model.predict_proba(input_data)[0][1] if hasattr(model, 'predict_proba') else None
+                else:
+                    # For non-pipeline models
+                    if scaler is not None:
+                        input_array = input_data.values
+                        input_data_scaled = scaler.transform(input_array)
+                    else:
+                        input_data_scaled = input_data.values
+
+                    prediction = model.predict(input_data_scaled)
+                    
+                    probability = None
+                    if hasattr(model, 'predict_proba'):
+                        probas = model.predict_proba(input_data_scaled)
+                        probability = float(probas[0]) if probas.ndim == 1 else float(probas[0][1])
+
+                prediction = int(prediction[0]) if isinstance(prediction, (np.ndarray, list)) else int(prediction)
+                
+                expert_predictions.append({
+                    'expert': f"Chuyên gia {len(expert_predictions) + 1}",
+                    'model': model_name,
+                    'prediction': prediction,
+                    'probability': probability,
+                    'result': "Có nguy cơ" if prediction == 1 else "Không có nguy cơ"
+                })
+            except Exception as e:
+                print(f"Error with model {model_name}: {str(e)}")
+                continue
+
+        # Get final prediction based on majority vote
+        predictions = [p['prediction'] for p in expert_predictions]
+        final_prediction = Counter(predictions).most_common(1)[0][0]
         
         return {
-            "prediction": prediction,
-            "probability": probability
+            "expert_predictions": expert_predictions,
+            "final_prediction": final_prediction,
+            "final_result": "Có nguy cơ" if final_prediction == 1 else "Không có nguy cơ"
         }
     except Exception as e:
         print(f"Prediction error: {str(e)}")
