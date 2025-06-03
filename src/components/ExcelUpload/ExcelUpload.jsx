@@ -41,11 +41,11 @@ const ExcelUpload = () => {
         formData.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:8000/api/predict/excel', formData, {
+            const response = await axios.post('/api/predict/excel', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
-            });
+            }); 
             setResults(response.data);
         } catch (err) {
             setError(err.response?.data?.detail || 'Có lỗi xảy ra khi xử lý file');

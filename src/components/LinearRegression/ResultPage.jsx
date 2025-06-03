@@ -19,7 +19,7 @@ const ResultPage = () => {
 
       try {
         console.log('Sending form data:', location.state.formData);
-        const response = await fetch('http://localhost:8000/api/predict', {
+        const response = await fetch('/api/predict', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
