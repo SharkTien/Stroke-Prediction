@@ -10,7 +10,7 @@ from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.over_sampling import SMOTE
 
 # Import các mô hình từ thư mục models
-from models.DecisionTree import DecisionTree
+# from models.DecisionTree import DecisionTree
 from models.RandomForest import CustomRandomForest
 from models.SVM import LinearSVM
 from models.LogisticRegression import LogisticRegressionCustom
@@ -102,9 +102,9 @@ def save_model(model, scaler, save_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a model for stroke prediction')
-    parser.add_argument('--model', type=str, default='DecisionTree',
-                      choices=['DecisionTree', 'RandomForest', 'SVM', 'LogisticRegression'],
-                      help='Model to train')
+    parser.add_argument('--model', type=str, default='RandomForest',
+                      choices=['RandomForest', 'SVM', 'LogisticRegression'],
+                      help='Chọn mô hình để huấn luyện')
 
     args = parser.parse_args()
     
@@ -127,8 +127,6 @@ if __name__ == "__main__":
             regularization='l2',    # L2 regularization
             lambda_param=0.1        # Regularization strength
         )
-    elif args.model == 'DecisionTree':
-        model = DecisionTree(criterion='entropy', min_samples_split=1, max_depth=100)
     elif args.model == 'RandomForest':
         model = ImbPipeline([
             ('smote', SMOTE(random_state=42)),
@@ -144,10 +142,7 @@ if __name__ == "__main__":
         model = LinearSVM(learning_rate=0.001, lambda_param=0.01, n_iters=1000)
 
     # Huấn luyện và đánh giá mô hình
-    if args.model == 'DecisionTree':
-        trained_model = train_and_evaluate_model(model, X_train_scaled, X_test_scaled, y_train.values, y_test.values, args.model)
-    else:
-        trained_model = train_and_evaluate_model(model, X_train_scaled, X_test_scaled, y_train, y_test, args.model)
+    trained_model = train_and_evaluate_model(model, X_train_scaled, X_test_scaled, y_train, y_test, args.model)
     
     # Lưu mô hình và scaler
     save_model(trained_model, scaler, f'checkpoints/{args.model.lower()}_model.pkl')

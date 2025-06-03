@@ -35,7 +35,6 @@ os.makedirs(checkpoints_dir, exist_ok=True)
 required_models = [
     ('svm_model.pkl', 'SVM'),
     ('logisticregression_model.pkl', 'LogisticRegression'),
-    ('decisiontree_model.pkl', 'DecisionTree'),
     ('randomforest_model.pkl', 'RandomForest')
 ]
 

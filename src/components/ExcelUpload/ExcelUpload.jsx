@@ -71,68 +71,46 @@ const ExcelUpload = () => {
             <div className="guide-section">
                 <h3>Hướng dẫn chuẩn bị file Excel/CSV</h3>
                 <div className="guide-content">
-                    <p><b>Bạn có thể để bất kỳ cột nào bạn muốn</b> (ví dụ: tên, mã số, căn cước, địa chỉ, ...).</p>
-                    <p><b>Bắt buộc phải có đầy đủ các cột sau</b> (có thể nằm ở bất kỳ vị trí nào trong file, không cần đúng thứ tự):</p>
-                    <ul>
-                        <li>age</li>
-                        <li>gender <i>("Male" hoặc "Female")</i></li>
-                        <li>chest_pain</li>
-                        <li>high_blood_pressure</li>
-                        <li>irregular_heartbeat</li>
-                        <li>shortness_of_breath</li>
-                        <li>fatigue_weakness</li>
-                        <li>dizziness</li>
-                        <li>swelling_edema</li>
-                        <li>neck_jaw_pain</li>
-                        <li>excessive_sweating</li>
-                        <li>persistent_cough</li>
-                        <li>nausea_vomiting</li>
-                        <li>chest_discomfort</li>
-                        <li>cold_hands_feet</li>
-                        <li>snoring_sleep_apnea</li>
-                        <li>anxiety_doom</li>
-                    </ul>
-                    <ul>
-                        <li>Các cột triệu chứng (từ chest_pain đến anxiety_doom) dùng giá trị <b>1</b> cho "Có" và <b>0</b> cho "Không".</li>
-                        <li>Các dòng thiếu dữ liệu ở các cột bắt buộc sẽ không được dự đoán (cột at_risk sẽ để trống).</li>
-                        <li><b>Kết quả trả về sẽ giữ nguyên tất cả các cột gốc và thêm cột <span style={{color: 'red'}}>at_risk</span> ở cuối.</b></li>
-                    </ul>
+                    <p>
+                        <b>Bạn có thể để bất kỳ cột nào bạn muốn</b> (ví dụ: tên, mã số, căn cước, địa chỉ, ...).<br />
+                        <b>Bắt buộc phải có đầy đủ các cột sau</b> (có thể nằm ở bất kỳ vị trí nào trong file, không cần đúng thứ tự):
+                    </p>
+                    <table className="guide-table">
+                        <thead>
+                            <tr>
+                                <th>Tên cột</th>
+                                <th>Ý nghĩa</th>
+                                <th>Giá trị hợp lệ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>age</td><td>Tuổi</td><td>Số</td></tr>
+                            <tr><td>gender</td><td>Giới tính</td><td>"Male" hoặc "Female"</td></tr>
+                            <tr><td>chest_pain</td><td>Đau ngực</td><td>0 hoặc 1</td></tr>
+                            <tr><td>high_blood_pressure</td><td>Cao huyết áp</td><td>0 hoặc 1</td></tr>
+                            <tr><td>irregular_heartbeat</td><td>Nhịp tim không đều</td><td>0 hoặc 1</td></tr>
+                            <tr><td>shortness_of_breath</td><td>Khó thở</td><td>0 hoặc 1</td></tr>
+                            <tr><td>fatigue_weakness</td><td>Mệt mỏi, yếu sức</td><td>0 hoặc 1</td></tr>
+                            <tr><td>dizziness</td><td>Chóng mặt</td><td>0 hoặc 1</td></tr>
+                            <tr><td>swelling_edema</td><td>Phù nề</td><td>0 hoặc 1</td></tr>
+                            <tr><td>neck_jaw_pain</td><td>Đau cổ/hàm</td><td>0 hoặc 1</td></tr>
+                            <tr><td>excessive_sweating</td><td>Đổ mồ hôi nhiều</td><td>0 hoặc 1</td></tr>
+                            <tr><td>persistent_cough</td><td>Ho dai dẳng</td><td>0 hoặc 1</td></tr>
+                            <tr><td>nausea_vomiting</td><td>Buồn nôn/nôn</td><td>0 hoặc 1</td></tr>
+                            <tr><td>chest_discomfort</td><td>Khó chịu ở ngực</td><td>0 hoặc 1</td></tr>
+                            <tr><td>cold_hands_feet</td><td>Tay chân lạnh</td><td>0 hoặc 1</td></tr>
+                            <tr><td>snoring_sleep_apnea</td><td>Ngáy/ngưng thở khi ngủ</td><td>0 hoặc 1</td></tr>
+                            <tr><td>anxiety_doom</td><td>Lo lắng/cảm giác sắp chết</td><td>0 hoặc 1</td></tr>
+                        </tbody>
+                    </table>
                     <div className="guide-notes">
-                        <h4>Ví dụ file mẫu:</h4>
-                        <table className="guide-table">
-                            <thead>
-                                <tr>
-                                    <th>name</th>
-                                    <th>id</th>
-                                    <th>age</th>
-                                    <th>gender</th>
-                                    <th>chest_pain</th>
-                                    <th>...</th>
-                                    <th>anxiety_doom</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>An</td>
-                                    <td>01</td>
-                                    <td>45</td>
-                                    <td>Male</td>
-                                    <td>1</td>
-                                    <td>...</td>
-                                    <td>0</td>
-                                </tr>
-                                <tr>
-                                    <td>Bình</td>
-                                    <td>02</td>
-                                    <td>52</td>
-                                    <td>Female</td>
-                                    <td>0</td>
-                                    <td>...</td>
-                                    <td>1</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p><b>Kết quả trả về:</b> sẽ giữ nguyên mọi cột gốc và thêm cột <b>at_risk</b> ở cuối.</p>
+                        <h4>Lưu ý quan trọng:</h4>
+                        <ul>
+                            <li>Các cột triệu chứng (từ chest_pain đến anxiety_doom) dùng giá trị 1 cho "Có" và 0 cho "Không"</li>
+                            <li>gender phải là "Male" hoặc "Female"</li>
+                            <li>Các dòng thiếu dữ liệu ở các cột bắt buộc sẽ không được dự đoán (cột at_risk sẽ để trống)</li>
+                            <li>Kết quả trả về sẽ giữ nguyên tất cả các cột gốc và chỉ thêm cột <b>at_risk</b> ở cuối</li>
+                        </ul>
                     </div>
                 </div>
             </div>

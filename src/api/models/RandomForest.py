@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from models.DecisionTree import DecisionTree
+# from models.DecisionTree import DecisionTree
 
 class CustomRandomForest:
     def __init__(self, n_estimators=50, max_depth=10, min_samples_split=5, criterion='gini', n_features=None):
