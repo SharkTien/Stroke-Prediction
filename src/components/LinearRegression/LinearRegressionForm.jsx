@@ -432,6 +432,25 @@ const LinearRegressionForm = () => {
     { value: '1', label: 'Có' },
   ];
 
+  const initialValues = {
+    gender: '0',
+    chest_pain: '0',
+    high_blood_pressure: '0',
+    irregular_heartbeat: '0',
+    shortness_of_breath: '0',
+    fatigue_weakness: '0',
+    dizziness: '0',
+    swelling_edema: '0',
+    neck_jaw_pain: '0',
+    excessive_sweating: '0',
+    persistent_cough: '0',
+    nausea_vomiting: '0',
+    chest_discomfort: '0',
+    cold_hands_feet: '0',
+    snoring_sleep_apnea: '0',
+    anxiety_doom: '0',
+  };
+
   const onFinish = async (values) => {
     try {
         setLoading(true);
@@ -653,7 +672,7 @@ const LinearRegressionForm = () => {
           />
         </ProgressContainer>
 
-        <StyledForm form={form} layout="vertical" onFinish={onFinish}>
+        <StyledForm form={form} layout="vertical" onFinish={onFinish} initialValues={initialValues}>
           {steps.map((step, index) => (
             <BlockCard
               key={index}
