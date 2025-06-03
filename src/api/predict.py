@@ -34,8 +34,7 @@ os.makedirs(checkpoints_dir, exist_ok=True)
 # List of required models with their corresponding command line names
 required_models = [
     ('svm_model.pkl', 'SVM'),
-    ('logisticregression_model.pkl', 'LogisticRegression'),
-    ('randomforest_model.pkl', 'RandomForest')
+    ('logisticregression_model.pkl', 'LogisticRegression')
 ]
 
 def check_and_train_models():

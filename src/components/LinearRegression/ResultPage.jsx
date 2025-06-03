@@ -102,18 +102,29 @@ const ResultPage = () => {
 
   const currentAdvice = isHighRisk ? adviceData.highRisk : adviceData.lowRisk;
 
+  const getExpertNote = (expert) => {
+    if (expert.model === 'SVM') {
+      return "Chuyên gia được đánh giá cao về độ chính xác và độ tin cậy.";
+    }
+    return null;
+  };
+
   return (
     <div className="result-container">
       <h1>Kết quả đánh giá</h1>
       
       <div className="expert-predictions">
-        {result.expert_predictions.map((expert, index) => (
-          <div key={index} className={`expert-card ${expert.prediction === 1 ? 'risk' : 'no-risk'}`}>
-            <h3>{expert.expert}</h3>
-            <p className="model-name">Model: {expert.model}</p>
-            <p className="prediction">Kết quả: {expert.result}</p>
-          </div>
-        ))}
+        {result.expert_predictions && result.expert_predictions.filter(expert => expert.model !== 'RandomForest').length > 0 ? (
+          result.expert_predictions.filter(expert => expert.model !== 'RandomForest').map((expert, index) => (
+            <div key={index} className={`expert-card ${expert.prediction === 1 ? 'risk' : 'no-risk'}`}>
+              <h3>{expert.expert}</h3>
+              <p className="model-name">Model: {expert.model}</p>
+              <p className="prediction">Kết quả: {expert.result}</p>
+            </div>
+          ))
+        ) : (
+          <div className="no-expert-result">Không có kết quả dự đoán từ chuyên gia.</div>
+        )}
       </div>
 
       <div className="final-result">
