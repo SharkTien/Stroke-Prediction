@@ -7,6 +7,9 @@ import LinearRegressionForm from './components/LinearRegression/LinearRegression
 import ResultPage from './components/LinearRegression/ResultPage';
 import TestResult from './components/LinearRegression/TestResult';
 import About from './components/about/about';
+import ExcelUpload from './components/ExcelUpload/ExcelUpload';
+import Assessment from './components/Assessment/Assessment';
+import ChartAnalysis from './components/ChartAnalysis/ChartAnalysis';
 
 function App() {
   const [isDark, setIsDark] = useState(false)   
@@ -18,10 +21,13 @@ function App() {
         <main className="main">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/assessment" element={<LinearRegressionForm />} />
+            <Route path="/assessment" element={<Assessment />} />
+            <Route path="/assessment-form" element={<LinearRegressionForm />} />
             <Route path="/about" element={<About />} />
             <Route path="/result" element={<ResultPage />} />
             <Route path="/test-result" element={<TestResult />} />
+            <Route path="/excel-upload" element={<ExcelUpload />} />
+            <Route path="/chart-analysis" element={<ChartAnalysis />} />
           </Routes>
         </main>
         <Footer />

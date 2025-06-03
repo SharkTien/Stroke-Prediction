@@ -119,11 +119,6 @@ const ResultPage = () => {
             <h3>{expert.expert}</h3>
             <p className="model-name">Model: {expert.model}</p>
             <p className="prediction">Kết quả: {expert.result}</p>
-            {expert.probability !== null && (
-              <p className="probability">
-                Xác suất: {(expert.probability * 100).toFixed(2)}%
-              </p>
-            )}
             {expert.model === 'SVM' && (
               <div className="expert-note">
                 <p className="note-icon">⭐</p>

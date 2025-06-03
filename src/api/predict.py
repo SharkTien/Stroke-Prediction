@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import pandas as pd
 import dill
@@ -10,6 +10,8 @@ import subprocess
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 from collections import Counter
+from fastapi.responses import JSONResponse
+from typing import List, Dict, Any
 
 app = FastAPI()
 
@@ -34,8 +36,7 @@ required_models = [
     ('svm_model.pkl', 'SVM'),
     ('logisticregression_model.pkl', 'LogisticRegression'),
     ('decisiontree_model.pkl', 'DecisionTree'),
-    ('randomforest_model.pkl', 'RandomForest'),
-    ('knn_model.pkl', 'KNN')
+    ('randomforest_model.pkl', 'RandomForest')
 ]
 
 def check_and_train_models():
@@ -187,6 +188,111 @@ async def predict(data: StrokeData):
     except Exception as e:
         print(f"Prediction error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/predict/excel")
+async def predict_excel(file: UploadFile = File(...)):
+    if not (file.filename.endswith('.xlsx') or file.filename.endswith('.csv')):
+        raise HTTPException(status_code=400, detail="File phải có định dạng .xlsx hoặc .csv")
+
+    try:
+        # Đọc file dựa vào định dạng
+        if file.filename.endswith('.xlsx'):
+            df = pd.read_excel(file.file)
+        else:
+            df = pd.read_csv(file.file)
+        # Kiểm tra các cột cần thiết
+        required_columns = ['age', 'gender', 'chest_pain', 'high_blood_pressure', 'irregular_heartbeat', 'shortness_of_breath',
+                          'fatigue_weakness', 'dizziness', 'swelling_edema', 'neck_jaw_pain', 'excessive_sweating', 'persistent_cough',
+                          'nausea_vomiting', 'chest_discomfort', 'cold_hands_feet', 'snoring_sleep_apnea', 'anxiety_doom']
+        
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Thiếu các cột: {', '.join(missing_columns)}"
+            )
+
+        # Chỉ giữ lại các cột cần thiết
+        df = df[required_columns]
+
+
+        # Tiền xử lý dữ liệu
+        # Chuyển đổi gender: Male -> 1, Female -> 0
+        df = df.dropna()
+        df['gender'] = df['gender'].map({'Male': 1, 'Female': 0})
+
+        # # Xóa các cột gốc đã được chuyển đổi
+        # df = df.drop(['chest_pain', 'high_blood_pressure', 'irregular_heartbeat', 'shortness_of_breath',
+        #               'fatigue_weakness', 'dizziness', 'swelling_edema', 'neck_jaw_pain', 'excessive_sweating', 'persistent_cough',
+        #               'nausea_vomiting', 'chest_discomfort', 'cold_hands_feet', 'snoring_sleep_apnea', 'anxiety_doom'], axis=1)
+        
+        # Chuyển các đặc trưng nhị phân/thang đo thành kiểu category
+        categorical_features = [
+            'gender', 'chest_pain', 'high_blood_pressure', 'irregular_heartbeat',
+            'shortness_of_breath', 'fatigue_weakness', 'dizziness', 'swelling_edema',
+            'neck_jaw_pain', 'excessive_sweating', 'persistent_cough', 'nausea_vomiting',
+            'chest_discomfort', 'cold_hands_feet', 'snoring_sleep_apnea', 'anxiety_doom'
+        ]
+        for col in categorical_features:
+            if col in df.columns:
+                df[col] = df[col].astype('category')
+                
+        # Đảm bảo thứ tự các cột giống với dữ liệu huấn luyện
+        expected_columns = ['age', 'gender', 'chest_pain', 'high_blood_pressure', 'irregular_heartbeat', 'shortness_of_breath',
+                          'fatigue_weakness', 'dizziness', 'swelling_edema', 'neck_jaw_pain', 'excessive_sweating', 'persistent_cough',
+                          'nausea_vomiting', 'chest_discomfort', 'cold_hands_feet', 'snoring_sleep_apnea', 'anxiety_doom']
+        
+        # Thêm các cột còn thiếu với giá trị 0
+        for col in expected_columns:
+            if col not in df.columns:
+                df[col] = 0
+        
+        # Sắp xếp lại các cột theo thứ tự mong muốn
+        df = df[expected_columns]
+        
+        # Chuẩn hóa dữ liệu
+        scaler = None
+        for model_data in models.values():
+            if model_data['scaler'] is not None:
+                scaler = model_data['scaler']
+                break
+
+        if scaler is not None:
+            X = scaler.transform(df)
+        else:
+            X = df.values
+        # Dự đoán với tất cả các mô hình
+        predictions = {}
+        for model_name, model_data in models.items():
+            model = model_data['model']
+            if model_name == 'RandomForest':
+                predictions[model_name] = model.predict(X)
+            else:
+                predictions[model_name] = model.predict(X)
+        # Thực hiện majority voting
+        final_predictions = np.zeros(len(X))
+        for i in range(len(X)):
+            votes = [pred[i] for pred in predictions.values()]
+            final_predictions[i] = Counter(votes).most_common(1)[0][0]
+        
+        # Thêm kết quả dự đoán vào DataFrame gốc
+        file.file.seek(0)
+        if file.filename.endswith('.xlsx'):
+            original_df = pd.read_excel(file.file)
+        else:
+            original_df = pd.read_csv(file.file)
+            
+        # Chỉ giữ lại các cột cần thiết và thêm cột kết quả
+        result_df = original_df[required_columns].copy()
+        result_df['at_risk'] = final_predictions.astype(int)
+        
+        # Chuyển đổi DataFrame thành danh sách các từ điển
+        results = result_df.to_dict('records')
+        
+        return results
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi khi xử lý file: {str(e)}")
 
 def start():
     """Launched with `poetry run start` at root level"""

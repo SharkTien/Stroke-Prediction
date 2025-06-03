@@ -1,7 +1,16 @@
 :root {
-    --header-height: 4.5rem;
-    --header-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+    --primary-color: #378CE7;
+    --secondary-color: #DFF5FF;
+    --active-color: #75d3ff;
+    --font-color: #1E1E1E;
+    --bg-color: #fff;
     --gradient-primary: linear-gradient(135deg, #6A11CB 0%, #2575FC 100%);
+    --gradient-secondary: linear-gradient(135deg, #FF57B9 0%, #A704FD 100%);
+    --shadow: 0 2px 16px rgba(55, 140, 231, 0.08);
+    --border-radius: 1rem;
+    --heading-font: "Rowdies", sans-serif;
+    --header-height: 4.5rem;
+    --header-shadow: 0 2px 16px rgba(55, 140, 231, 0.08);
     --transition-fast: 0.3s;
     --transition-medium: 0.5s;
 }
@@ -11,7 +20,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: var(--z-fixed);
+    z-index: 100;
     background-color: transparent;
     transition: var(--transition-medium);
 }
@@ -76,7 +85,6 @@
     -webkit-background-clip: text;
     color: transparent;
 }
-
 
 .nav__menu-bg {
     position: absolute;
@@ -192,7 +200,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
     transition: all 0.3s ease;
 }
 
@@ -212,8 +220,8 @@
     -webkit-backdrop-filter: blur(5px);
     justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(106, 17, 203, 0.1);
+    box-shadow: var(--shadow);
+    border: 1px solid #DFF5FF;
     transition: all 0.3s ease;
 }
 
@@ -243,7 +251,7 @@
     height: 80px;
     top: -20px;
     right: 20%;
-    background: linear-gradient(180deg, #6A11CB, transparent);
+    background: var(--gradient-primary);
     clip-path: circle(50% at 50% 50%);
     animation: float 15s infinite;
 }
@@ -253,7 +261,7 @@
     height: 60px;
     bottom: -30px;
     left: 30%;
-    background: linear-gradient(180deg, #2575FC, transparent);
+    background: var(--gradient-secondary);
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
     animation: float 12s infinite;
     animation-delay: 2s;
@@ -317,5 +325,11 @@
 @media screen and (max-width: 350px) {
     .nav__logo-text {
         font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .nav__logo-text {
+        font-size: 1.1rem;
     }
 }

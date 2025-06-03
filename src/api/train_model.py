@@ -11,7 +11,6 @@ from imblearn.over_sampling import SMOTE
 
 # Import các mô hình từ thư mục models
 from models.DecisionTree import DecisionTree
-from models.KNN import KNNClassifier
 from models.RandomForest import CustomRandomForest
 from models.SVM import LinearSVM
 from models.LogisticRegression import LogisticRegressionCustom
@@ -104,7 +103,7 @@ def save_model(model, scaler, save_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a model for stroke prediction')
     parser.add_argument('--model', type=str, default='DecisionTree',
-                      choices=['DecisionTree', 'RandomForest', 'SVM', 'KNN', 'LogisticRegression'],
+                      choices=['DecisionTree', 'RandomForest', 'SVM', 'LogisticRegression'],
                       help='Model to train')
 
     args = parser.parse_args()
@@ -143,14 +142,9 @@ if __name__ == "__main__":
         ])
     elif args.model == 'SVM':
         model = LinearSVM(learning_rate=0.001, lambda_param=0.01, n_iters=1000)
-    elif args.model == 'KNN':
-        model = ImbPipeline([
-            ('smote', SMOTE(random_state=RANDOM_STATE)),
-            ('classifier', KNNClassifier(k=5))
-        ])
 
     # Huấn luyện và đánh giá mô hình
-    if args.model == 'DecisionTree' or args.model == 'KNN':
+    if args.model == 'DecisionTree':
         trained_model = train_and_evaluate_model(model, X_train_scaled, X_test_scaled, y_train.values, y_test.values, args.model)
     else:
         trained_model = train_and_evaluate_model(model, X_train_scaled, X_test_scaled, y_train, y_test, args.model)

@@ -74,6 +74,16 @@ const Header = () => {
                                 <span>Về chúng tôi</span>
                             </Link>
                         </li>
+                        <li className="nav__item">
+                            <Link 
+                                to="/chart-analysis" 
+                                onClick={() => handleNavLinkClick('/chart-analysis')} 
+                                className={activeNav === "/chart-analysis" ? "nav__link active-link" : "nav__link"}
+                            >
+                                <i className="uil uil-chart-bar nav__icon"></i>
+                                <span>Phân tích biểu đồ</span>
+                            </Link>
+                        </li>
                     </ul>
 
                     <i className="uil uil-times nav__close" onClick={() => setToggle(false)}></i>

@@ -8,13 +8,10 @@
 
 /* ============= HOME ============= */
 .home.section {
-    min-height: 100vh;
     position: relative;
     overflow: hidden;
     display: flex;
     align-items: center;
-    padding-top: 5rem;
-    background: rgba(245, 245, 250, 0.8);
 }
 
 .home__container {

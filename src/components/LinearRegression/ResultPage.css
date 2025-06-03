@@ -1,5 +1,19 @@
+:root {
+  --primary-color: #378CE7;
+  --secondary-color: #DFF5FF;
+  --active-color: #75d3ff;
+  --font-color: #1E1E1E;
+  --bg-color: #fff;
+  --gradient-primary: linear-gradient(135deg, #6A11CB 0%, #2575FC 100%);
+  --gradient-secondary: linear-gradient(135deg, #FF57B9 0%, #A704FD 100%);
+  --shadow: 0 2px 16px rgba(55, 140, 231, 0.08);
+  --border-radius: 1rem;
+  --heading-font: "Rowdies", sans-serif;
+}
+
 .result-container {
     min-height: 100vh;
+    margin-top: 5rem;
     background: linear-gradient(135deg, #6A11CB 0%, #2575FC 100%);
     padding: 2rem;
     display: flex;
@@ -173,20 +187,20 @@
 }
 
 .advice-list {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
+    background: #fff;
+    border-radius: var(--border-radius);
     padding: 2rem;
     list-style: none;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
+    border: 1.5px solid #DFF5FF;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .advice-list li {
     margin: 1rem 0;
     padding-left: 1.5rem;
     position: relative;
-    color: #333;
+    color: #1E1E1E;
     font-size: 1.1rem;
     line-height: 1.6;
 }
@@ -205,27 +219,26 @@
 }
 
 .back-button {
-    background: rgba(255, 255, 255, 0.95);
-    color: #333;
+    background: var(--gradient-primary);
+    color: #fff;
     border: none;
     padding: 1rem 2rem;
     font-size: 1.1rem;
-    border-radius: 12px;
+    border-radius: 2rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: var(--shadow);
+    font-weight: 600;
 }
 
 .back-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    background: white;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(106, 17, 203, 0.15);
+    background: var(--gradient-secondary);
 }
 
 .loading {
-    color: white;
+    color: #6A11CB;
     font-size: 1.5rem;
     text-align: center;
     animation: pulse 1.5s infinite;
@@ -233,22 +246,21 @@
 
 .error {
     color: #ff4d4f;
-    background: rgba(255, 255, 255, 0.95);
+    background: #fff;
     padding: 2rem;
-    border-radius: 20px;
+    border-radius: var(--border-radius);
     text-align: center;
     font-size: 1.2rem;
     margin-bottom: 1rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: var(--shadow);
+    border: 1.5px solid #FF57B9;
 }
 
 .expert-note {
     margin-top: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(106, 17, 203, 0.05);
-    border-radius: 8px;
+    background: #F5F8FF;
+    border-radius: 0.75rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -266,7 +278,7 @@
 
 .note-text {
     margin: 0;
-    color: #666;
+    color: #2575FC;
     font-size: 0.9rem;
     line-height: 1.4;
     font-style: italic;
@@ -315,8 +327,11 @@
 @media (max-width: 768px) {
     .result-container {
         padding: 1rem;
+        margin-top: 0;
     }
-
+    .header__bg {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%) !important;
+    }
     .result-container h1 {
         font-size: 2rem;
     }

@@ -161,6 +161,17 @@ img {
   gap: 1.5rem;
 }
 
+.main {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.main > div:first-child {
+  min-width: 100vw;
+}
+
 /*================ BUTTON ==============*/
 .button {
   display: inline-block;
