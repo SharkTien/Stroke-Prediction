@@ -2,7 +2,7 @@
   "name": "aiprofile",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://sharktien.github.io/my-portfolio",
+  "homepage": "https://sharktien.github.io/Stroke-Prediction",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -11,7 +11,7 @@ from imblearn.over_sampling import SMOTE
 
 # Import các mô hình từ thư mục models
 # from models.DecisionTree import DecisionTree
-from models.RandomForest import CustomRandomForest
+# from models.RandomForest import CustomRandomForest
 from models.SVM import LinearSVM
 from models.LogisticRegression import LogisticRegressionCustom
 
@@ -102,8 +102,8 @@ def save_model(model, scaler, save_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a model for stroke prediction')
-    parser.add_argument('--model', type=str, default='RandomForest',
-                      choices=['RandomForest', 'SVM', 'LogisticRegression'],
+    parser.add_argument('--model', type=str, default='LogisticRegression',
+                      choices=['SVM', 'LogisticRegression'],
                       help='Chọn mô hình để huấn luyện')
 
     args = parser.parse_args()
@@ -127,17 +127,17 @@ if __name__ == "__main__":
             regularization='l2',    # L2 regularization
             lambda_param=0.1        # Regularization strength
         )
-    elif args.model == 'RandomForest':
-        model = ImbPipeline([
-            ('smote', SMOTE(random_state=42)),
-            ('classifier', CustomRandomForest(
-                n_estimators=50,     # Số lượng cây vừa phải
-                max_depth=10,        # Giới hạn độ sâu để tránh overfitting
-                min_samples_split=5, # Số mẫu tối thiểu để split
-                criterion='gini',    # Sử dụng Gini impurity
-                n_features=None      # Tự động chọn sqrt(n_features)
-            ))
-        ])
+    # elif args.model == 'RandomForest':
+    #     model = ImbPipeline([
+    #         ('smote', SMOTE(random_state=42)),
+    #         ('classifier', CustomRandomForest(
+    #             n_estimators=50,     # Số lượng cây vừa phải
+    #             max_depth=10,        # Giới hạn độ sâu để tránh overfitting
+    #             min_samples_split=5, # Số mẫu tối thiểu để split
+    #             criterion='gini',    # Sử dụng Gini impurity
+    #             n_features=None      # Tự động chọn sqrt(n_features)
+    #         ))
+    #     ])
     elif args.model == 'SVM':
         model = LinearSVM(learning_rate=0.001, lambda_param=0.01, n_iters=1000)
 
